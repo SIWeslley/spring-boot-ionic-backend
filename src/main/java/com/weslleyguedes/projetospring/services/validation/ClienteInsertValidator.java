@@ -6,12 +6,20 @@ import java.util.List;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.weslleyguedes.projetospring.domain.Cliente;
 import com.weslleyguedes.projetospring.domain.enums.TipoCliente;
 import com.weslleyguedes.projetospring.dto.ClienteNewDTO;
+import com.weslleyguedes.projetospring.repositories.ClienteRepository;
 import com.weslleyguedes.projetospring.resources.exceptions.FieldMessage;
 import com.weslleyguedes.projetospring.services.validation.utils.BR;
 
 public class ClienteInsertValidator implements ConstraintValidator<ClienteInsert, ClienteNewDTO> {
+
+	@Autowired
+	private ClienteRepository repo;
+
 	@Override
 	public void initialize(ClienteInsert ann) {
 	}
@@ -20,12 +28,17 @@ public class ClienteInsertValidator implements ConstraintValidator<ClienteInsert
 	public boolean isValid(ClienteNewDTO objDto, ConstraintValidatorContext context) {
 		List<FieldMessage> list = new ArrayList<>();
 
-		if (objDto.getTipo().equals(TipoCliente.PESSOAFISICA.getCod()) && !BR.isValidCPF(objDto.getCpfOuCnpj())) {
+		if (objDto.getTipo().equals(TipoCliente.PESSOAFISICA.getCod()) && !BR.isValidCPF(objDto.getCpfOuCnpj()))
 			list.add(new FieldMessage("cpfOuCnpj", "CPF inválido"));
-		}
-		if (objDto.getTipo().equals(TipoCliente.PESSOAJURIDICA.getCod()) && !BR.isValidCNPJ(objDto.getCpfOuCnpj())) {
+		
+		if (objDto.getTipo().equals(TipoCliente.PESSOAJURIDICA.getCod()) && !BR.isValidCNPJ(objDto.getCpfOuCnpj()))
 			list.add(new FieldMessage("cpfOuCnpj", "CNPJ inválido"));
-		}
+		
+		Cliente aux = repo.findByEmail(objDto.getEmail());
+		
+		if(aux != null)
+			list.add(new FieldMessage("email", "Email já existente"));
+		
 
 		// inclua os testes aqui, inserindo erros na lista
 
