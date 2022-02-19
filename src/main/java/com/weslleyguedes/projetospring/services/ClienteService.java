@@ -15,11 +15,14 @@ import org.springframework.transaction.annotation.Transactional;
 import com.weslleyguedes.projetospring.domain.Cidade;
 import com.weslleyguedes.projetospring.domain.Cliente;
 import com.weslleyguedes.projetospring.domain.Endereco;
+import com.weslleyguedes.projetospring.domain.enums.Perfil;
 import com.weslleyguedes.projetospring.domain.enums.TipoCliente;
 import com.weslleyguedes.projetospring.dto.ClienteDTO;
 import com.weslleyguedes.projetospring.dto.ClienteNewDTO;
 import com.weslleyguedes.projetospring.repositories.ClienteRepository;
 import com.weslleyguedes.projetospring.repositories.EnderecoRepository;
+import com.weslleyguedes.projetospring.security.UserSS;
+import com.weslleyguedes.projetospring.services.exceptions.AuthorizationException;
 import com.weslleyguedes.projetospring.services.exceptions.DataIntegrityException;
 import com.weslleyguedes.projetospring.services.exceptions.ObjectNotFoundException;
 
@@ -28,7 +31,7 @@ public class ClienteService {
 
 	@Autowired
 	private BCryptPasswordEncoder pe;
-	
+
 	@Autowired
 	private ClienteRepository repo;
 
@@ -36,6 +39,11 @@ public class ClienteService {
 	private EnderecoRepository enderecoRepository;
 
 	public Cliente find(Integer id) {
+
+		UserSS user = UserService.authenticated();
+		if (user == null || !user.hasRole(Perfil.ADMIN) && !id.equals(user.getId()))
+			throw new AuthorizationException("Acesso negado");
+
 		Optional<Cliente> obj = repo.findById(id);
 
 		return obj.orElseThrow(() -> new ObjectNotFoundException(
