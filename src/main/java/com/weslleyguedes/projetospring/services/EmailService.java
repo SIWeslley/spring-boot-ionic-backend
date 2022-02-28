@@ -4,18 +4,21 @@ import javax.mail.internet.MimeMessage;
 
 import org.springframework.mail.SimpleMailMessage;
 
+import com.weslleyguedes.projetospring.domain.Cliente;
 import com.weslleyguedes.projetospring.domain.Pedido;
 
 public interface EmailService {
 
-	//Versão texto plano
+	// Versão texto plano
 	void sendOrderConfirmationEmail(Pedido obj);
-	
+
 	void SendEmail(SimpleMailMessage msg);
-	
-	//Versão HTML
+
+	// Versão HTML
 	void sendOrderConfirmationHtmlEmail(Pedido obj);
-	
+
 	void sendHtmlEmail(MimeMessage msg);
-	
+
+	void sendNewPasswordEmail(Cliente cliente, String newPass);
+
 }
